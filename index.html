@@ -1,32 +1,53 @@
 <!DOCTYPE html>
-
 <html>
+
 <head>
-  <meta charset="UTF-8">
-  <title>AR test</title>
-  <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AR test</title>
+    <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
+    <style>
+        html,
+        body {
+            margin: 0;
+            height: 100%;
+            overflow: hidden;
+            background: #000
+        }
+    </style>
 </head>
 
 <body>
-<a-scene mindar-image="imageTargetSrc: targets.mind;" 
-         color-space="sRGB" 
-         renderer="colorManagement: true;" 
-         vr-mode-ui="enabled: false" 
-         device-orientation-permission-ui="enabled: false">
+    <a-scene mindar-image="imageTargetSrc: targets.mind;" renderer="colorManagement: true;" vr-mode-ui="enabled: false"
+        device-orientation-permission-ui="enabled: false">
 
-  <a-assets>
-    <video id="vid" src="video.mp4" loop="true" crossorigin="anonymous"></video>
-  </a-assets>
+        <a-assets>
+            <video id="vid" src="video.mp4" loop muted playsinline webkit-playsinline preload="auto"
+                crossorigin="anonymous"></video>
+        </a-assets>
 
-<a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
+        <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
 
-  <!-- target 0 -->
+        <a-entity id="t0" mindar-image-target="targetIndex: 0">
+            <a-video src="#vid" width="1" height="0.6" position="0 0 0"></a-video>
+        </a-entity>
 
-  <a-entity mindar-image-target="targetIndex: 0">
-    <a-video src="#vid" width="1" height="0.6" position="0 0 0"></a-video>
-  </a-entity>
+    </a-scene>
 
-</a-scene>
+    <script>
+        const video = document.getElementById("vid");
+        const target = document.getElementById("t0");
+
+        target.addEventListener("targetFound", async () => {
+            try { await video.play(); } catch (e) { console.log("play blocked", e); }
+        });
+
+        target.addEventListener("targetLost", () => {
+            video.pause();
+            video.currentTime = 0;
+        });
+    </script>
 </body>
+
 </html>
