@@ -4,50 +4,95 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AR test</title>
+    <title>AR Camera</title>
+
     <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
+    <script src="https://unpkg.com/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
+
     <style>
         html,
         body {
             margin: 0;
+            padding: 0;
+            width: 100%;
             height: 100%;
             overflow: hidden;
-            background: #000
+            background: black;
+        }
+
+        a-scene {
+            position: fixed !important;
+            inset: 0;
+            width: 100% !important;
+            height: 100% !important;
+        }
+
+        canvas {
+            width: 100% !important;
+            height: 100% !important;
+            background: transparent !important;
+        }
+
+        #soundBtn {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            z-index: 9999;
+            padding: 14px 18px;
+            border-radius: 14px;
+            border: none;
+            font-size: 16px;
+            font-weight: bold;
+            display: none;
         }
     </style>
 </head>
 
 <body>
-    <a-scene mindar-image="imageTargetSrc: targets.mind;" renderer="colorManagement: true;" vr-mode-ui="enabled: false"
-        device-orientation-permission-ui="enabled: false">
 
+    <button id="soundBtn">🔊 Ovozni yoqish</button>
+
+    <a-scene mindar-image="imageTargetSrc: targets.mind;"
+        renderer="colorManagement: true; physicallyCorrectLights: true; alpha: true;" embedded
+        vr-mode-ui="enabled: false" device-orientation-permission-ui="enabled: false">
         <a-assets>
-            <video id="vid" src="video.mp4" loop muted playsinline webkit-playsinline preload="auto"
+            <video id="vid" src="video.mp4" loop muted autoplay playsinline webkit-playsinline preload="auto"
                 crossorigin="anonymous"></video>
         </a-assets>
 
         <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
 
-        <a-entity id="t0" mindar-image-target="targetIndex: 0">
+        <a-entity id="target" mindar-image-target="targetIndex: 0">
             <a-video src="#vid" width="1" height="0.6" position="0 0 0"></a-video>
         </a-entity>
 
     </a-scene>
 
     <script>
-        const video = document.getElementById("vid");
-        const target = document.getElementById("t0");
+        const video = document.querySelector("#vid");
+        const target = document.querySelector("#target");
+        const soundBtn = document.querySelector("#soundBtn");
 
         target.addEventListener("targetFound", async () => {
-            try { await video.play(); } catch (e) { console.log("play blocked", e); }
+            try { await video.play(); } catch (e) { }
+            soundBtn.style.display = "block";
+            soundBtn.textContent = "🔊 Ovozni yoqish";
         });
 
         target.addEventListener("targetLost", () => {
             video.pause();
             video.currentTime = 0;
+            video.muted = true;
+            soundBtn.style.display = "none";
+        });
+
+        soundBtn.addEventListener("click", async () => {
+            video.muted = false;
+            await video.play();
+            soundBtn.textContent = "✅ Ovoz yoqildi";
         });
     </script>
+
 </body>
 
 </html>
